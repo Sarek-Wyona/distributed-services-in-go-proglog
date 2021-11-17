@@ -1,0 +1,15 @@
+# IntelliJ file
+.idea
+go.iml
+*.test
+*.iml
+
+# Log files
+*.log
+
+# Crash log files
+crash.log
+
+# Misc.
+/environ.rc*
+scrap*.*

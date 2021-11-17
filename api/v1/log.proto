@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package log.v1;
+
+option go_package = "github.com/Sarek-Wyona/distributed-services-in-go-proglog/api/log_v1";
+
+//The service keyword says that this is a service for the compiler to generate, and each RPC line is an endpoint
+//in that service, specifying the type of request and response the endpoint accepts. The requests and responses
+//are messages that the compiler turns into Go structs.
+service Log{
+  rpc Produce(ProduceRequest) returns(ProduceResponse){}
+  rpc Consume(ConsumeRequest) returns(ConsumeResponse){}
+  //Server-side streaming RPC where the client sends a request to the server and gets back a stream
+  //to read a sequence of messages.
+  rpc ConsumeStream(ConsumeRequest) returns(stream ConsumeResponse){}
+  // Bidirectional streaming RPC where both the client and server send a sequence of messages using
+  //a read-write stream. The two streams operate independently, so the clients and servers can read
+  //and write in whatever order they like. For example, the server could wait to receive all of the
+  //client’s requests before sending back its response. You’d order your calls this way if your server
+  //needed to process the requests in batches or aggregate a response over multiple requests.
+  //Alternatively, the server could send back a response for each request in lockstep. You’d order
+  //your calls this way if each request required its own corresponding response.
+  rpc ProduceStream(stream ProduceRequest) returns(stream ProduceResponse){}
+}
+
+//Includes the record to produce to the log
+message ProduceRequest{
+  Record record = 1;
+}
+
+//Sends back the record's offset
+message ProduceResponse{
+  uint64 offset = 1 ;
+}
+
+//User specifies the offset for of the log entry to consume
+message ConsumeRequest{
+  uint64 offset = 1;
+}
+
+//Server responds back with the record at the specified offset.
+message ConsumeResponse{
+  Record record = 1;
+}
+
+message Record{
+  bytes value = 1;
+  uint64 offset = 2;
+}
